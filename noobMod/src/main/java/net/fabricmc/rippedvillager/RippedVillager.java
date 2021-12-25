@@ -14,6 +14,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelData;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelPartBuilder;
+import net.minecraft.client.model.*;
 import net.minecraft.client.model.ModelPartData;
 import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.model.TexturedModelData;
@@ -42,13 +43,24 @@ public class RippedVillager implements ModInitializer {
 	
     public static final Block EXAMPLE_BLOCK = new Block(FabricBlockSettings.of(Material.METAL).strength(4.0f));
 	
+    //Create and Register Entity:
+    
     public static class StrongVillager extends PathAwareEntity {
     	
         public StrongVillager(EntityType<? extends PathAwareEntity> entityType, World world) {
             super(entityType, world);
         }
-    	
     }
+    
+    // Entity Type:
+    
+    public static final EntityType<StrongVillager> CUBE = Registry.register(
+            Registry.ENTITY_TYPE,
+            new Identifier("rippedvilly", "1"),
+            FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, StrongVillager::new).dimensions(EntityDimensions.fixed(1f, 3f)).build()
+    );
+    
+    
     
     
     public static class StrongVillagerRenderer extends MobEntityRenderer<StrongVillager, StrongVillagerModel> {
@@ -59,13 +71,13 @@ public class RippedVillager implements ModInitializer {
      
         @Override
         public Identifier getTexture(StrongVillager entity) {
-            return new Identifier("rippedvillager", "skin.png");
+            return new Identifier("rippedvillager", "texture.png");
         }
     }
     
     
     public static class StrongVillagerModel extends EntityModel<StrongVillager> {
-    	 
+   	 
         private final ModelPart base;
      
         public StrongVillagerModel(ModelPart modelPart) {
@@ -75,8 +87,42 @@ public class RippedVillager implements ModInitializer {
         public static TexturedModelData getTexturedModelData() {
             ModelData modelData = new ModelData();
         	ModelPartData modelPartData = modelData.getRoot();
-            modelPartData.addChild(EntityModelPartNames.CUBE, ModelPartBuilder.create().uv(0, 0).cuboid(-6F, 12F, -6F, 12F, 12F, 12F), ModelTransform.pivot(0F, 0F, 0F));
-            return TexturedModelData.of(modelData, 64, 64);
+            modelPartData.addChild(EntityModelPartNames.CUBE, ModelPartBuilder.create()
+            		//Legs:
+            		.cuboid("bone", 2.0F, -16.0F, -6.0F, 4, 16, 4, 0, 56)	
+            		.cuboid("bone", -8.0F, -16.0F, -6.0F, 4, 16, 4, 16 , 56)
+            		
+            		//Torso:
+            		.cuboid("bone", -8.0F, -26.0F, -8.0F, 14, 10, 6, 30, 32)		
+            		.cuboid("bone", -10.0F, -34.0F, -8.0F, 18, 8, 6, 0, 0)
+            			//Pecs:
+            		.cuboid("bone",-8.0F, -32.0F, -10.0F, 6 , 6 , 2, 60, 12)
+            		.cuboid("bone",0.0F, -32.0F, -10.0F, 6 ,6 , 2, 28, 14)
+            		
+            		//Arms
+            			//Deltoids
+            		.cuboid("bone", 6.0F, -40.0F, -10.0F, 8, 8, 8, 0 ,40 )
+            		.cuboid("bone", -16.0F, -40.0F, -10.0F, 8, 8, 8, 36, 14)	
+            			
+            			//Biceps
+            		.cuboid("bone", -18.0F, -32.0F, -8.0F, 6, 6, 6, 32, 48)
+            		.cuboid("bone", 10.0F, -32.0F, -8.0F, 6 , 6, 6 , 48, 0)
+            			
+            			//Forearms
+            		.cuboid("bone", -18.0F, -28.0F, -6.0F, 4, 10, 4, 32, 60)
+            		.cuboid("bone", 12.0F, -28.0F, -6.0F, 4, 10, 4, 56, 48)
+            		
+            		//head 
+            		.cuboid("bone", -6.0F, -50.0F, -14.0F, 10, 16, 8, 0, 14)
+            		.cuboid("bone", -2.0F, -44.0F, -16.0F, 2, 6, 2, 0, 14) //nose
+
+
+            		
+            		
+            		
+            		, ModelTransform.pivot(0F, 24F, 2F));
+            
+            return TexturedModelData.of(modelData, 128, 128);
         }
         
         @Override
@@ -94,11 +140,6 @@ public class RippedVillager implements ModInitializer {
     }
     
     
-    public static final EntityType<StrongVillager> CUBE = Registry.register(
-            Registry.ENTITY_TYPE,
-            new Identifier("entitytesting", "cube"),
-            FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, StrongVillager::new).dimensions(EntityDimensions.fixed(0.75f, 0.75f)).build()
-    );
     
     
 	@Override
@@ -111,9 +152,16 @@ public class RippedVillager implements ModInitializer {
 		
 		
 		AttackEntityCallback.EVENT.register( (player, world, hand, entity, hitResult) -> {
+
 			mc.inGameHud.addChatMessage(MessageType.SYSTEM, Text.of("§6Hit!"), mc.player.getUuid());
+			
 			if(entity instanceof VillagerEntity) {
-				mc.inGameHud.addChatMessage(MessageType.SYSTEM, Text.of("Villager hit"), mc.player.getUuid());
+				VillagerEntity selectedVillager = (VillagerEntity) entity;
+				Float entityHP = selectedVillager.getHealth();
+				
+				mc.inGameHud.addChatMessage(MessageType.SYSTEM, Text.of(String.valueOf(entityHP)), mc.player.getUuid());
+				
+				
 				entity.discard();
 				var strongVillager = CUBE.create(world);
 				strongVillager.refreshPositionAndAngles(entity.getX(),entity.getY(), entity.getZ(), entity.getYaw(), 0.0F);

@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
 public class EntityTestingClient implements ClientModInitializer {
-    public static final EntityModelLayer MODEL_CUBE_LAYER = new EntityModelLayer(new Identifier("entitytesting", "cube"), "main");
+    public static final EntityModelLayer MODEL_CUBE_LAYER = new EntityModelLayer(new Identifier("rippedvilly", "1"), "main");
     @Override
     public void onInitializeClient() {
         /*
