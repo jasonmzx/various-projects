@@ -28,6 +28,9 @@ import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.mob.PathAwareEntity;
+import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.mob.ZombieEntity;
+import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemGroup;
@@ -141,7 +144,6 @@ public class RippedVillager implements ModInitializer {
     
     
     
-    
 	@Override
 	public void onInitialize() {
 		
@@ -155,17 +157,20 @@ public class RippedVillager implements ModInitializer {
 
 			mc.inGameHud.addChatMessage(MessageType.SYSTEM, Text.of("§6Hit!"), mc.player.getUuid());
 			
-			if(entity instanceof VillagerEntity) {
+			if(entity instanceof VillagerEntity ) {
 				VillagerEntity selectedVillager = (VillagerEntity) entity;
 				Float entityHP = selectedVillager.getHealth();
 				
+				
+				if(entityHP <= 12) {
+					entity.discard();
+					var strongVillager = CUBE.create(world);
+					strongVillager.refreshPositionAndAngles(entity.getX(),entity.getY(), entity.getZ(), entity.getYaw(), 0.0F);
+					world.spawnEntity(strongVillager);
+				}
+				
 				mc.inGameHud.addChatMessage(MessageType.SYSTEM, Text.of(String.valueOf(entityHP)), mc.player.getUuid());
 				
-				
-				entity.discard();
-				var strongVillager = CUBE.create(world);
-				strongVillager.refreshPositionAndAngles(entity.getX(),entity.getY(), entity.getZ(), entity.getYaw(), 0.0F);
-				world.spawnEntity(strongVillager);
 			}
 			
 			
