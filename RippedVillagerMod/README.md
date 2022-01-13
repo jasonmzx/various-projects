@@ -1,6 +1,6 @@
 
 # Ripped Villager (Fabric Minecraft Mod)
-* I abandoned this project due to lack of Documentation & Boredom 
+* I abandoned this project due to lack of Good documentation & Boredom 
 * This mod isn't finished
 
 ## Setup 
