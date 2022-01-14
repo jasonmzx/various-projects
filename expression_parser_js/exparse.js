@@ -73,7 +73,7 @@ const Operation = (a,b,o) => {
     }
 }
 
-
+const reducerSum = (pV, cV) => pV + cV;
 
 var calc = function (expression) {
     expression = expression.replace(/\s/g, ""); //Whitespace removal using re
@@ -172,9 +172,9 @@ var calc = function (expression) {
                     let R = expressionEval(tokenObj.slice(i+1,EB+i+1),depth+1);
                     
                     resultStore.push({
-                        s: i+1, //start
-                        e: EB+1, //end
-                        r : R[0] //result
+                        start: i+1, //start
+                        end: EB+1, //end (relative to start)
+                        result : R[0] //result
                     })
 
                     console.log('Incoming R:')
@@ -192,9 +192,13 @@ var calc = function (expression) {
 
         //bracket refactor
         for(const [r,v] of resultStore.entries()){
-            
-            tokenObj.splice(v.s,v.e);
-            tokenObj[v.s-1] = v.r;
+
+            const offset = resultStore.slice(0, r).map((e) => {return e.end}).reduce(reducerSum,0);
+            console.log('REFAC');
+            console.log(offset);
+            tokenObj.splice((v.start-offset),v.end);
+            tokenObj[v.start-offset-1] = v.result;
+            console.log(tokenObj);
 
         }
 
@@ -205,6 +209,7 @@ var calc = function (expression) {
         //     const v = tokenObj[i];
         //     if(v.string === '('){
         //         brackCount += 1;
+
         //         const EB = EndBracket(tokenObj.slice(i+1,tokenObj.length));
                 
         //         if(brackCount === depth || brackCount === depth+1){
@@ -287,7 +292,7 @@ var calc = function (expression) {
 
 //calc('1+( (1+1) - (0.5 + 0.5))');
 
-calc('5*(2+ -4/(1.1+-2) - (2+3) + 5 )');
+calc('5*(2+1*(4/2)) + (21/3)- -4 * (2.2+2/1.1)');
 
 //calc('5*(2+-4/(1+1))+2.5')
 //calc('5/( (1+1) + (2- -2*3.1*2) )+4.344-(-2.2+1)')
