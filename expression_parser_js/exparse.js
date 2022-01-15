@@ -97,7 +97,7 @@ var calc = function (expression) {
                         type: 0, 
                         string: expression.slice(i,i+1)
                     }
-);
+                        );
                     continue;
                 } 
 
@@ -153,13 +153,16 @@ var calc = function (expression) {
 
     } //end of Tokenizing
 
+    console.log('TOKENZIED !')
+    console.log(Tokenized);
+    console.log('//TOKENZIED !')
     const expressionEval = (tokenObj,depth) => {
         console.log('Obj : '+depth);
         console.log(tokenObj);
 
         //Bracket Parsing
         
-        let brackCount = 0;
+        let brackCount = depth;
 
         let resultStore = [];
 
@@ -168,6 +171,7 @@ var calc = function (expression) {
                 brackCount += 1;
                 const EB = EndBracket(tokenObj.slice(i+1,tokenObj.length));
                 
+                console.log('brackCount: '+brackCount+' depth: '+depth + ' index: '+i);
                 if(brackCount === depth || brackCount === depth+1){
                     let R = expressionEval(tokenObj.slice(i+1,EB+i+1),depth+1);
                     
@@ -188,53 +192,29 @@ var calc = function (expression) {
             }
         } //end of bracket parse
 
+        console.log('Result STORE !');
         console.log(resultStore);  
+        console.log('\n');
 
         //bracket refactor
         for(const [r,v] of resultStore.entries()){
 
             const offset = resultStore.slice(0, r).map((e) => {return e.end}).reduce(reducerSum,0);
             console.log('REFAC');
-            console.log(offset);
             tokenObj.splice((v.start-offset),v.end);
             tokenObj[v.start-offset-1] = v.result;
-            console.log(tokenObj);
 
         }
-
+        
+        console.log('After refactor for depth: '+depth);
         console.log(tokenObj);
 
-
-        // for(let i = 0; i < [...tokenObj].length; i++) {
-        //     const v = tokenObj[i];
-        //     if(v.string === '('){
-        //         brackCount += 1;
-
-        //         const EB = EndBracket(tokenObj.slice(i+1,tokenObj.length));
-                
-        //         if(brackCount === depth || brackCount === depth+1){
-        //             let R = expressionEval(tokenObj.slice(i+1,EB+i+1),depth+1);
-                    
-        //              tokenObj.splice(i+1,EB+i+1);
-        //              tokenObj[i] = R[0];
-        //             i = i-1
-        //             console.log('Incoming R:')
-        //             console.log(R);
-        //             console.log(tokenObj);
-        //             console.log('Deets: '+(i+1)+' '+(EB+i+1));
-        //         }
-
-
-        //     } else if(v.string === ')'){
-        //         brackCount -= 1;
-        //     }
-        // }
 
         //Primary Operations
         for(let p = 0; p < [...tokenObj].length; p++){
             const obj = tokenObj[p];
 
-            if(tokenRef.dm_o.includes(obj.string)){ //If * or /
+            if(obj.type == 1){ //If * or /
 
                 console.log(tokenObj[p-1].string);
                 console.log(obj.string);
@@ -261,14 +241,28 @@ var calc = function (expression) {
         for(let p = 0; p < [...tokenObj].length; p++){
             const obj = tokenObj[p];
 
-            if(tokenRef.as_o.includes(obj.string)){ //If * or /
-            
-                const result = Operation(
-                    tokenObj[p-1].string, //a
-                    tokenObj[p+1].string, //b
-                    obj.string); //operator
+            if(obj.type === 2 || obj.string[0] === '-' && p !== 0 && tokenObj[p-1].type === -1){ //If + ot -
+                
+                let result = null;
 
-                tokenObj.splice(p,2);
+                if(obj.type == -1){ //If 
+                    result = Operation(
+                        tokenObj[p-1].string,
+                        obj.string,
+                        '+'
+                    );
+
+                    tokenObj.splice(p,1);
+                } else {
+                    result = Operation(
+                        tokenObj[p-1].string, //a
+                        tokenObj[p+1].string, //b
+                        obj.string); //operator
+    
+                    tokenObj.splice(p,2);
+                }
+
+
                 tokenObj[p-1] = { type: -1, string: result.toString()}
                 //console.log(tokenObj)
 
@@ -281,6 +275,7 @@ var calc = function (expression) {
         return tokenObj
     }
 
+
     console.log(expressionEval(Tokenized,0));
 
     //console.log(Tokenized);
@@ -292,10 +287,19 @@ var calc = function (expression) {
 
 //calc('1+( (1+1) - (0.5 + 0.5))');
 
-calc('5*(2+1*(4/2)) + (21/3)- -4 * (2.2+2/1.1)');
+//calc('(2+2) + 23/(2*(21+2.2))');
+
+
+//calc('2+(10*10)')
+//calc('2-3');
+//calc('2 / (2 + 3) * 4.33 - -6');
+//calc('(1 - 2) + -(-(-(-4)))'); //Flawed
+
+//calc('(1 - 2) + -1*(-1*(-1*(-4)))'); //Flawed
+//calc('12* 123/-(-5 + 2)'); //flawed
 
 //calc('5*(2+-4/(1+1))+2.5')
-//calc('5/( (1+1) + (2- -2*3.1*2) )+4.344-(-2.2+1)')
+calc('5/( (1+1) + (2- -2*3.1*2) )+4.344-(-2.2+1)')
 
 // 12*123/-(-5+2.5)
 // 01234567890123456
