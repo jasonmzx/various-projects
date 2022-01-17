@@ -102,9 +102,17 @@ var calc = function (expression) {
                 } 
 
                 if(tokenRef.as_o.includes(eI)) { //Secondary
-                    if(eI === '-' && !isNaN(expression[i+1]) ){
+                    if(eI === '-' && !isNaN(expression[i+1]) ){ //if - is part of negative float
                         continue;
-                    }
+                    } 
+
+                    else if(eI === '-' && expression[i+1] === '('){
+                        Tokenized.push({ //distributive modifier token (type 3)
+                            type: 3,
+                            string: '-m'
+                        })
+                        continue
+                    } else {
 
                     Tokenized.push({
                         // start: i, 
@@ -113,6 +121,7 @@ var calc = function (expression) {
                         string: expression.slice(i,i+1)
                     });
                     continue;
+                    }
                 }
 
                 if(tokenRef.dm_o.includes(eI)) { //Primary
@@ -153,12 +162,15 @@ var calc = function (expression) {
 
     } //end of Tokenizing
 
-    console.log('TOKENZIED !')
-    console.log(Tokenized);
-    console.log('//TOKENZIED !')
+   // console.log('TOKENZIED !')
+ //   console.log(Tokenized);
+    //console.log('//TOKENZIED !')
+
+
+
     const expressionEval = (tokenObj,depth) => {
-        console.log('Obj : '+depth);
-        console.log(tokenObj);
+      //  console.log('Obj : '+depth);
+      //  console.log(tokenObj);
 
         //Bracket Parsing
         
@@ -171,7 +183,7 @@ var calc = function (expression) {
                 brackCount += 1;
                 const EB = EndBracket(tokenObj.slice(i+1,tokenObj.length));
                 
-                console.log('brackCount: '+brackCount+' depth: '+depth + ' index: '+i);
+               // console.log('brackCount: '+brackCount+' depth: '+depth + ' index: '+i);
                 if(brackCount === depth || brackCount === depth+1){
                     let R = expressionEval(tokenObj.slice(i+1,EB+i+1),depth+1);
                     
@@ -181,9 +193,9 @@ var calc = function (expression) {
                         result : R[0] //result
                     })
 
-                    console.log('Incoming R:')
-                    console.log(R);
-                    console.log('Deets: '+(i+1)+' '+(EB+i+1));
+                  //  console.log('Incoming R:')
+                   // console.log(R);
+                  //  console.log('Deets: '+(i+1)+' '+(EB+i+1));
                 }
 
 
@@ -192,23 +204,55 @@ var calc = function (expression) {
             }
         } //end of bracket parse
 
-        console.log('Result STORE !');
-        console.log(resultStore);  
-        console.log('\n');
+      //  console.log('Result STORE !');
+      //  console.log(resultStore);  
+       // console.log('\n');
 
         //bracket refactor
         for(const [r,v] of resultStore.entries()){
 
             const offset = resultStore.slice(0, r).map((e) => {return e.end}).reduce(reducerSum,0);
-            console.log('REFAC');
+         //   console.log('REFAC');
             tokenObj.splice((v.start-offset),v.end);
             tokenObj[v.start-offset-1] = v.result;
 
         }
         
-        console.log('After refactor for depth: '+depth);
-        console.log(tokenObj);
+        //console.log('After refactor for depth: '+depth);
+        //console.log(tokenObj);
 
+
+        //Distributive modifiers applications
+        //console.log('Looking at:')
+        //console.log(tokenObj)
+
+        for(let d = 0; d < [...tokenObj].length; d++){
+            const obj = tokenObj[d];
+
+            if(obj.type === 3 && tokenObj[d+1].type === -1){
+               // console.log('Passed thru');
+
+                const modifiedValue = parseFloat(tokenObj[d+1].string)*-1;
+               // console.log(modifiedValue);
+
+                if(d != 0 && tokenObj[d-1].type === -1){
+                    tokenObj[d] = {type: 2, string: '+'};
+                    tokenObj[d+1] = {type: -1, string: (modifiedValue).toString() };
+                } else {
+                   // console.log('Elsed out');
+                    tokenObj[d+1] = {type: -1, string: (modifiedValue).toString() };
+                    tokenObj.splice(d,1);
+                }
+                d = d-1;
+
+
+            }
+            
+
+        }
+
+        //console.log('passthru after:')
+        //console.log(tokenObj);
 
         //Primary Operations
         for(let p = 0; p < [...tokenObj].length; p++){
@@ -216,20 +260,20 @@ var calc = function (expression) {
 
             if(obj.type == 1){ //If * or /
 
-                console.log(tokenObj[p-1].string);
-                console.log(obj.string);
-                console.log(tokenObj[p+1].string);
+               // console.log(tokenObj[p-1].string);
+               // console.log(obj.string);
+               // console.log(tokenObj[p+1].string);
             
                 const result = Operation(
                     tokenObj[p-1].string, //a
                     tokenObj[p+1].string, //b
                     obj.string); //operator
 
-                console.log(result);
+               // console.log(result);
                     
                 tokenObj.splice(p,2);
                 tokenObj[p-1] = { type: -1, string: result.toString()}
-                console.log(tokenObj)
+              //  console.log(tokenObj)
 
                 p = p-1
                 
@@ -271,17 +315,15 @@ var calc = function (expression) {
             }
         }
 
-
+        console.log(tokenObj);
         return tokenObj
     }
 
 
-    console.log(expressionEval(Tokenized,0));
-
-    //console.log(Tokenized);
 
 
-    return -12
+    return parseInt(expressionEval(Tokenized,0)[0].string);
+
 };
 
 
@@ -296,10 +338,12 @@ var calc = function (expression) {
 //calc('(1 - 2) + -(-(-(-4)))'); //Flawed
 
 //calc('(1 - 2) + -1*(-1*(-1*(-4)))'); //Flawed
-//calc('12* 123/-(-5 + 2)'); //flawed
+console.log('Val:')
+console.log(calc('12* 123/-(-5 + 2)')); //flawed
 
 //calc('5*(2+-4/(1+1))+2.5')
-calc('5/( (1+1) + (2- -2*3.1*2) )+4.344-(-2.2+1)')
+//calc('-(-1+2)');
+//calc('5/( (1+1) + (2- -2*3.1*2) )+4.344-(-2.2+1)')
 
 // 12*123/-(-5+2.5)
 // 01234567890123456
