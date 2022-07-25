@@ -1,7 +1,6 @@
 #![allow(unused)]
 
 // Crate Imports:
-use clap::Parser;
 use colored::*;
 use rusqlite::{Connection, Result};
 
@@ -10,29 +9,32 @@ use rusqlite::{Connection, Result};
 mod print;
 
 /// Search for a pattern in a file and display the lines that contain it.
-#[derive(Parser)]
-
-
-struct Cli {
-    /// The table i'm looking for
-    operation: String,
-    /// operation
-    paste: String,
-}
+#[macro_use]
+extern crate clap;
+use clap::App;
 
 fn help_print() -> () {
     print::header_print("Help Menu");
 }
 
 fn main() -> Result<()> {
-    let args = Cli::parse();
-    let conn = Connection::open("feather.db")?;
-    println!("{}", args.operation);
 
-    if(args.operation == "help"){
-        help_print();
-        return Ok(());
-    }
+    let yaml = load_yaml!("cli_structure.yml");
+    let matches = App::from_yaml(yaml).get_matches();
+
+    let input_match = matches.value_of("INPUT").unwrap();
+
+    println!("{}", input_match);
+
+
+    //Connection to SQLLite
+    let conn = Connection::open("feather.db")?;
+    // println!("{}", args.operation);
+
+    // if(args.operation == "help"){
+    //     help_print();
+    //     return Ok(());
+    // }
 
 
     println!("{}", "Initializing SQLLite Table:".bright_green());
