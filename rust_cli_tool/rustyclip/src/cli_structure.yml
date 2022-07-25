@@ -9,8 +9,8 @@ args:
         value_name: FILE
         help: Sets a custom config file
         takes_value: true
-    - INPUT:
-        help: Sets the input file to use
+    - ACTION:
+        help: Indicates which action to preform.
         required: true
         index: 1
     - verbose:

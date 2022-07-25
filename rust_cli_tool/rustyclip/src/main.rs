@@ -3,15 +3,22 @@
 // Crate Imports:
 use colored::*;
 use rusqlite::{Connection, Result};
+use clap::App;
+use copypasta::{ClipboardContext, ClipboardProvider};
+
+//If you're on a Linux Machine, make sure to have the xorg-dev package installed
+//TO install this package on Debian/Ubuntu, preform:    sudo apt-get install xorg-dev
+// (Copypasta which is a fork of rust-clipboard crate requires an installation of the x11 clipboard)
 
 //Module Imports (Local stuff)
 
 mod print;
+mod handle;
 
 /// Search for a pattern in a file and display the lines that contain it.
 #[macro_use]
 extern crate clap;
-use clap::App;
+extern crate copypasta;
 
 fn help_print() -> () {
     print::header_print("Help Menu");
@@ -19,13 +26,28 @@ fn help_print() -> () {
 
 fn main() -> Result<()> {
 
+
+    //Reading the CLI Structure off a YML File, this is equivalent to the clap::App builder pattern (wrapper)
     let yaml = load_yaml!("cli_structure.yml");
+
+    //Matches all inputted args to an object which has finder functions for various values 
     let matches = App::from_yaml(yaml).get_matches();
 
-    let input_match = matches.value_of("INPUT").unwrap();
+    //CLI Argument values:
+    let action = matches.value_of("ACTION").unwrap();
 
-    println!("{}", input_match);
+    //Matching action
+    match action {
+        "save" => handle::save(),
+        _=> handle::not_found(),
+    }
 
+    let mut ctx = ClipboardContext::new().unwrap();
+
+    let msg : String = "Hello, world!".to_string();
+
+    ctx.set_contents(msg).unwrap();
+    println!("{:?}", ctx.get_contents().unwrap());
 
     //Connection to SQLLite
     let conn = Connection::open("feather.db")?;
