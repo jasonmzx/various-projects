@@ -11,3 +11,15 @@ pub fn header_print(title : &str) -> () {
         "------->".blue()
     );
 }
+
+
+
+//Panic prints 
+
+pub fn save_panic() -> () {
+    println!("{}\n{}\n{}",
+    "You forgot to add a unique key to your paste!".bright_red().bold(), 
+    "USAGE : rustyclip.exe save <uuid>".red(),
+    "EXAMPLE: rustyclip.exe save jasons_email_address".red()
+    )
+}

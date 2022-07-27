@@ -356,3 +356,4 @@ NBTparse/node_modules/10/package.json
 NBTparse/node_modules/.bin/protodef-validator.ps1
 NBTparse/node_modules/.bin/protodef-validator.cmd
 NBTparse/node_modules/.bin/protodef-validator
+*.db

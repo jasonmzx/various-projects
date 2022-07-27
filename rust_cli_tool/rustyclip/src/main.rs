@@ -26,6 +26,8 @@ fn help_print() -> () {
 
 fn main() -> Result<()> {
 
+    //Connection to SQLLite
+    let conn = Connection::open("feather.db")?;
 
     //Reading the CLI Structure off a YML File, this is equivalent to the clap::App builder pattern (wrapper)
     let yaml = load_yaml!("cli_structure.yml");
@@ -35,10 +37,20 @@ fn main() -> Result<()> {
 
     //CLI Argument values:
     let action = matches.value_of("ACTION").unwrap();
+    let payload = matches.value_of("PAYLOAD").ok_or("");
 
-    //Matching action
+    //Assertions: 
+
+    //Whilst preforming the `save` action, a user MUST include a unique indentifier for their paste.
+    if(action == "save" && payload == Err("")) {
+        print::save_panic();
+        panic!("{}", "USE A UNIQUE KEY");
+    }
+
+    // Switch statement for Action handling (Granted that the assertions handled any invalid input)
+
     match action {
-        "save" => handle::save(),
+         "save" => handle::save(&conn),
         _=> handle::not_found(),
     }
 
@@ -49,8 +61,6 @@ fn main() -> Result<()> {
     ctx.set_contents(msg).unwrap();
     println!("{:?}", ctx.get_contents().unwrap());
 
-    //Connection to SQLLite
-    let conn = Connection::open("feather.db")?;
     // println!("{}", args.operation);
 
     // if(args.operation == "help"){
@@ -58,6 +68,11 @@ fn main() -> Result<()> {
     //     return Ok(());
     // }
 
+    //Assertions
+
+    // fn save_assert() -> () {
+    //     println!("{}", payload);
+    // }
 
     println!("{}", "Initializing SQLLite Table:".bright_green());
     match conn.execute(

@@ -3,20 +3,14 @@ version: "0.0.1"
 author: Jason M.
 about: CLI Clipboard tool
 args:
-    - config:
-        short: c
-        long: config
-        value_name: FILE
-        help: Sets a custom config file
-        takes_value: true
     - ACTION:
         help: Indicates which action to preform.
         required: true
         index: 1
-    - verbose:
-        short: v
-        multiple: true
-        help: Sets the level of verbosity
+    - PAYLOAD:
+        help: Extra Arg.
+        required: false
+        index: 2
 subcommands:
     - test:
         about: controls testing features
