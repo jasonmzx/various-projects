@@ -29,6 +29,9 @@ fn main() -> Result<()> {
     //Connection to SQLLite
     let conn = Connection::open("feather.db")?;
 
+    //Creation of Clipboard context:
+    let mut ctx = ClipboardContext::new().unwrap();
+
     //Reading the CLI Structure off a YML File, this is equivalent to the clap::App builder pattern (wrapper)
     let yaml = load_yaml!("cli_structure.yml");
 
@@ -47,14 +50,17 @@ fn main() -> Result<()> {
         panic!("{}", "USE A UNIQUE KEY");
     }
 
+    //Unwrapping and casting the payload for easy usage
+    let payload_string : String = payload.unwrap().to_string();
+
+
     // Switch statement for Action handling (Granted that the assertions handled any invalid input)
 
     match action {
-         "save" => handle::save(&conn),
+         "save" => handle::save(&conn, &ctx, payload_string),
         _=> handle::not_found(),
     }
 
-    let mut ctx = ClipboardContext::new().unwrap();
 
     let msg : String = "Hello, world!".to_string();
 
