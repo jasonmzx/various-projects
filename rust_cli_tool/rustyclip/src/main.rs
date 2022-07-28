@@ -29,39 +29,38 @@ fn main() -> Result<()> {
     //Connection to SQLLite
     let conn = Connection::open("feather.db")?;
 
+    //Initializing Tables:
+
     let tables = &[        
         "CREATE TABLE paste_table (
-        uuid  TEXT NOT NULL,
+        id  INTEGER PRIMARY KEY NOT NULL,
         paste  TEXT NOT NULL
         )"
         , 
         "CREATE TABLE key_table (
+            id INTEGER NOT NULL,
             key TEXT NOT NULL,
-            uuid TEXT NOT NULL
+            FOREIGN KEY (id) REFERENCES paste_table(id)
         )"
     ];
+ 
+    //Creation of Tables: (Loop thru Vector & execute)
 
-    //Creation of Tables:
-    match conn.execute(
-        "CREATE TABLE paste_table (
-            uuid  TEXT NOT NULL,
-            paste  TEXT NOT NULL
-        )
-        ",
-        [], // empty list of parameters.
-    ) {
-        Ok(i) => {
-            let ok_string : String = i.to_string();
-            println!("{}\n", ok_string.bright_green() )
-        },
-
-        Err(e) => {
-            //Explicitly casting error to string
-            let error_string : String = e.to_string();
-            eprintln!("{}\n", error_string.bright_red() )
-        },
+    for table in tables {
+        match conn.execute( table , [] , ) // empty list of parameters.
+         {
+            Ok(i) => {
+                let ok_string : String = i.to_string();
+                println!("{}\n", ok_string.bright_green() )
+            },
+    
+            Err(e) => {
+                //Explicitly casting error to string
+                let error_string : String = e.to_string();
+                eprintln!("{}", error_string.bright_red() )
+            },
+        };
     };
-
 
     //Reading the CLI Structure off a YML File, this is equivalent to the clap::App builder pattern (wrapper)
     let yaml = load_yaml!("cli_structure.yml");
@@ -70,8 +69,8 @@ fn main() -> Result<()> {
     let matches = App::from_yaml(yaml).get_matches();
 
     //CLI Argument values:
-    let action = matches.value_of("ACTION").unwrap();
-    let payload = matches.value_of("PAYLOAD").ok_or("");
+    let action = matches.value_of("ACTION").unwrap(); //Unwrapping this since the Action flag is mandatory
+    let payload = matches.value_of("PAYLOAD").ok_or(""); //This flag is option so I'm equally expecting an Error 
 
     //Assertions: 
 
@@ -88,7 +87,7 @@ fn main() -> Result<()> {
     // Switch statement for Action handling (Granted that the assertions handled any invalid input)
 
     match action {
-         "save" => handle::save(&conn, payload_string),
+          "save" => handle::save(&conn, payload_string),
         _=> handle::not_found(),
     }
 
