@@ -27,8 +27,9 @@ fn execute_paste(conn : &Connection, paste_string : &String) -> (i64) {
 }
 
 pub fn save(conn: &Connection , key : String) -> () {
+    
+    //Creation of Clipboard context: (Must be mutable since get/set fns are being applied I think ?)
 
-    //Prepare paste str
     let mut ctx = ClipboardContext::new().unwrap();
 
     let paste_string : String = ctx.get_contents().unwrap().to_string();
@@ -68,10 +69,9 @@ pub fn save(conn: &Connection , key : String) -> () {
 
             update_stmt.execute(params![row_id, key]);
 
-            //TODO: Make this print prettier
-            println!("{:?}", row_id);
+            //Printing the successful feedback to the user:
 
-            let keys : Vec<String> = [key].to_vec();
+            let keys : Vec<String> = [key].to_vec(); 
 
             handle_print::saved_print(&paste_string, keys, row_id );
 
@@ -83,11 +83,18 @@ pub fn save(conn: &Connection , key : String) -> () {
         
     }
 
+    // Unique Key wasn't used, proceed as normal:
 
-    //Creation of Clipboard context: (Must be mutable since get/set fns are being applied I think ?)
-    let mut ctx = ClipboardContext::new().unwrap();
+    let row_id : i64 = execute_paste(&conn, &paste_string);
 
-    let paste_string : String = ctx.get_contents().unwrap().to_string();
+    let mut insert_stmt = conn.prepare("INSERT INTO key_table (id , key) VALUES (?1 , ?2);").unwrap();
+
+    insert_stmt.execute(params![row_id, key]);
+
+    let keys : Vec<String> = [key].to_vec(); 
+
+    handle_print::saved_print(&paste_string, keys, row_id );
+
 
     //let mut stmt = conn.prepare("INSERT INTO paste_table (uuid,paste) VALUES (?,?)").unwrap();
 

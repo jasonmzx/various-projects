@@ -50,8 +50,8 @@ fn main() -> Result<()> {
         match conn.execute( table , [] , ) // empty list of parameters.
          {
             Ok(i) => {
-                let ok_string : String = i.to_string();
-                println!("{}\n", ok_string.bright_green() )
+                let ok_string : String = "Initialized a new SQLite Table.".to_string();
+                println!("{}", ok_string.green().bold() )
             },
     
             Err(e) => {
@@ -92,25 +92,9 @@ fn main() -> Result<()> {
     }
 
 
-    let msg : String = "Hello, world!".to_string();
+    //let msg : String = "Hello, world!".to_string();
 
     // ctx.set_contents(msg).unwrap();
-
-    // println!("{}", args.operation);
-
-    // if(args.operation == "help"){
-    //     help_print();
-    //     return Ok(());
-    // }
-
-    //Assertions
-
-    // fn save_assert() -> () {
-    //     println!("{}", payload);
-    // }
-
-    println!("{}", "Initializing SQLLite Table:".bright_green());
-
 
     Ok(())
 }
