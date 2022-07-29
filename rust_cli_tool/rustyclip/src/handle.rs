@@ -1,4 +1,4 @@
-use rusqlite::{Connection, Result};
+use rusqlite::{params, Connection, Result};
 use copypasta::{ClipboardContext, ClipboardProvider};
 
 //Query Map struct
@@ -38,10 +38,10 @@ pub fn save(conn: &Connection , key : String) -> () {
         })
     }).unwrap();
 
-
+    //If Unique Key exists, give user the option to override the nickname with a new paste
 
     if(rows.count() >= 1){
-        println!("{}", "This unique indentifier already exists!");
+        println!("{}", "This unique identifier already exists!");
         //Get an Extra input from the user
 
         let mut line = String::new();
@@ -56,27 +56,20 @@ pub fn save(conn: &Connection , key : String) -> () {
            
             let row_id : i64 = execute_paste(&conn);
 
+            let mut update_stmt = conn.prepare("UPDATE key_table SET id = ?1 WHERE key = ?2;").unwrap();
+
+            update_stmt.execute(params![row_id, key]);
+
+            //TODO: Make this print prettier
             println!("{:?}", row_id);
+
+            return ();
         }
+
+        println!("{:?}" , "I'll take that as a No...");
+        return ();
         
     }
-
-
-    // for person in rows {
-    //     println!("Found person {:?}", person);
-    // }
-    // match check_stmt.query_map([key]) {
-    //     Ok(i) => {
-    //         let ok_string : String = i.to_string();
-    //         println!("{}\n", ok_string )
-    //     },
-
-    //     Err(e) => {
-    //         //Explicitly casting error to string
-    //         let error_string : String = e.to_string();
-    //         eprintln!("{}", error_string )
-    //     },
-    // }
 
 
     //Creation of Clipboard context: (Must be mutable since get/set fns are being applied I think ?)
