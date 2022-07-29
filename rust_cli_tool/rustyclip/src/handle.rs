@@ -1,6 +1,9 @@
 use rusqlite::{params, Connection, Result};
 use copypasta::{ClipboardContext, ClipboardProvider};
 
+//Module imports
+mod handle_print;
+
 //Query Map struct
 
 #[derive(Debug)]
@@ -9,16 +12,13 @@ struct KeyTable {
     key : String
 }
 
-fn execute_paste(conn : &Connection) -> (i64) {
+
+fn execute_paste(conn : &Connection, paste_string : &String) -> (i64) {
 
     //This function executes the Insert query by passing in the clipboard's current content
     //Then returns the last inserted row's id (i64 integer) to be used elsewhere
 
     let mut stmt = conn.prepare("INSERT INTO paste_table (paste) VALUES (?)").unwrap();
-
-    let mut ctx = ClipboardContext::new().unwrap();
-
-    let paste_string : String = ctx.get_contents().unwrap().to_string();
 
     stmt.execute([paste_string]);
 
@@ -27,6 +27,12 @@ fn execute_paste(conn : &Connection) -> (i64) {
 }
 
 pub fn save(conn: &Connection , key : String) -> () {
+
+    //Prepare paste str
+    let mut ctx = ClipboardContext::new().unwrap();
+
+    let paste_string : String = ctx.get_contents().unwrap().to_string();
+
 
     //Check Unique Key
     let mut check_stmt = conn.prepare("SELECT id , key FROM key_table WHERE key = :key;").unwrap();
@@ -54,7 +60,9 @@ pub fn save(conn: &Connection , key : String) -> () {
 
         if(l_str == "Y" || l_str == "y" ){
            
-            let row_id : i64 = execute_paste(&conn);
+            //Pass in pointers since we're only trying to borrow these values in the execution of paste
+
+            let row_id : i64 = execute_paste(&conn, &paste_string);
 
             let mut update_stmt = conn.prepare("UPDATE key_table SET id = ?1 WHERE key = ?2;").unwrap();
 
@@ -62,6 +70,10 @@ pub fn save(conn: &Connection , key : String) -> () {
 
             //TODO: Make this print prettier
             println!("{:?}", row_id);
+
+            let keys : Vec<String> = [key].to_vec();
+
+            handle_print::saved_print(&paste_string, keys, row_id );
 
             return ();
         }

@@ -12,6 +12,24 @@ pub fn header_print(title : &str) -> () {
     );
 }
 
+
+pub fn saved_print(paste : &String , unique_keys : Vec<String> , id : i64) -> () {
+
+    let zero_string : String = "Successfully saved paste # ".to_owned()+&id.to_string();
+
+    let mut one_string : String = "Known identifiers: \n".to_owned();
+
+    for key in unique_keys {
+        one_string += &key.to_string();
+    }
+
+    println!("\n{}\n{}\n\n{}",
+    zero_string.bright_green().bold(),
+    one_string,
+    paste
+    )
+}
+
 //Panic prints 
 
 pub fn save_panic() -> () {
