@@ -12,6 +12,12 @@ pub fn header_print(title : &str) -> () {
     );
 }
 
+pub fn override_print() -> () {
+    println!("{}\n{}",
+    "This unique identifier already exists!".bright_yellow().bold(),
+    "Wanna override? ( Y / N ) :".bright_yellow().bold()
+    )
+}
 
 pub fn saved_print(paste : &String , unique_keys : Vec<String> , id : i64) -> () {
 
@@ -23,9 +29,10 @@ pub fn saved_print(paste : &String , unique_keys : Vec<String> , id : i64) -> ()
         one_string += &key.to_string();
     }
 
-    println!("\n{}\n{}\n\n{}",
+    println!("\n{}\n{}\n\n{}\n{}",
     zero_string.bright_green().bold(),
     one_string,
+    "Paste contents: ".bright_green().bold(),
     paste
     )
 }

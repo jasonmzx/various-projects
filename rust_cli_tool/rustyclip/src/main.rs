@@ -54,11 +54,7 @@ fn main() -> Result<()> {
                 println!("{}", ok_string.green().bold() )
             },
     
-            Err(e) => {
-                //Explicitly casting error to string
-                let error_string : String = e.to_string();
-                eprintln!("{}", error_string.bright_red() )
-            },
+            Err(e) => {},
         };
     };
 
@@ -88,6 +84,7 @@ fn main() -> Result<()> {
 
     match action {
           "save" => handle::save(&conn, payload_string),
+          "copy" => handle::copy(&conn, payload_string),
         _=> handle::not_found(),
     }
 

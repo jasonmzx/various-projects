@@ -7,7 +7,7 @@ mod handle_print;
 //Query Map struct
 
 #[derive(Debug)]
-struct KeyTable {
+struct Table {
     id : i32,
     key : String
 }
@@ -39,7 +39,7 @@ pub fn save(conn: &Connection , key : String) -> () {
     let mut check_stmt = conn.prepare("SELECT id , key FROM key_table WHERE key = :key;").unwrap();
 
     let rows = check_stmt.query_map(&[(":key", key.as_str())], |row| {
-        Ok(KeyTable {
+        Ok(Table {
             id: row.get(0)?,
             key: row.get(1)?,
         })
@@ -48,11 +48,10 @@ pub fn save(conn: &Connection , key : String) -> () {
     //If Unique Key exists, give user the option to override the nickname with a new paste
 
     if(rows.count() >= 1){
-        println!("{}", "This unique identifier already exists!");
+        handle_print::override_print();
         //Get an Extra input from the user
 
         let mut line = String::new();
-        println!("Wanna override? ( Y / N ) :");
         std::io::stdin().read_line(&mut line).unwrap();
 
         //Trim removes whitespace at the end and casts String to &str 
@@ -95,12 +94,51 @@ pub fn save(conn: &Connection , key : String) -> () {
 
     handle_print::saved_print(&paste_string, keys, row_id );
 
+}
 
-    //let mut stmt = conn.prepare("INSERT INTO paste_table (uuid,paste) VALUES (?,?)").unwrap();
+pub fn copy(conn: &Connection , key : String) -> () {
 
-   // stmt.execute([uuid, paste_string]);
+    //Creation clipboard context
+    let mut ctx = ClipboardContext::new().unwrap();
 
-    println!("{}", "HELLO!")
+    //Grab paste from identifier: Using 2 queries
+
+    let mut key_stmt = conn.prepare("SELECT id , key FROM key_table WHERE key = :key;").unwrap();
+    
+    let key_rows = key_stmt.query_map(&[(":key", key.as_str())], |row| {
+        Ok(Table {
+            id: row.get(0)?,
+            key: row.get(1)?,
+        })
+    }).unwrap();
+
+    let mut reference_id : i32 = 0;
+
+    //For loop is nessessary since MappedRow type cannot be indexed regularly (weird)
+    for row in key_rows {
+
+        //SQLite library assumes integers as i32 so I convert it back into i64
+        reference_id = row.unwrap().id;
+        println!("{:?}", reference_id.to_string());
+    }
+
+    //Get paste via Id
+
+    let mut paste_stmt = conn.prepare("SELECT id , paste FROM paste_table WHERE id = :key;").unwrap();
+
+    let paste_rows = paste_stmt.query_map(&[(":key", reference_id.to_string().as_str())], |row| {
+        Ok(Table {
+            id: row.get(0)?,
+            key: row.get(1)?,
+        })
+    }).unwrap();
+
+    for row in paste_rows {
+
+        println!("{:?}", row);
+    }
+
+    // ctx.set_contents(msg).unwrap();
 }
 
 pub fn not_found() -> () {
