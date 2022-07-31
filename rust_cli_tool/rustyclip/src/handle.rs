@@ -9,7 +9,7 @@ mod handle_print;
 #[derive(Debug)]
 struct Table {
     id : i32,
-    key : String
+    payload : String
 }
 
 
@@ -41,7 +41,7 @@ pub fn save(conn: &Connection , key : String) -> () {
     let rows = check_stmt.query_map(&[(":key", key.as_str())], |row| {
         Ok(Table {
             id: row.get(0)?,
-            key: row.get(1)?,
+            payload: row.get(1)?,
         })
     }).unwrap();
 
@@ -108,10 +108,11 @@ pub fn copy(conn: &Connection , key : String) -> () {
     let key_rows = key_stmt.query_map(&[(":key", key.as_str())], |row| {
         Ok(Table {
             id: row.get(0)?,
-            key: row.get(1)?,
+            payload: row.get(1)?,
         })
     }).unwrap();
 
+    //Putting in a default value since the compiler is worried.
     let mut reference_id : i32 = 0;
 
     //For loop is nessessary since MappedRow type cannot be indexed regularly (weird)
@@ -129,16 +130,20 @@ pub fn copy(conn: &Connection , key : String) -> () {
     let paste_rows = paste_stmt.query_map(&[(":key", reference_id.to_string().as_str())], |row| {
         Ok(Table {
             id: row.get(0)?,
-            key: row.get(1)?,
+            payload: row.get(1)?,
         })
     }).unwrap();
 
-    for row in paste_rows {
+    let mut copy_string : String = "".to_string();
 
-        println!("{:?}", row);
+    //Grab payload from query's row struct
+    for row in paste_rows {
+        copy_string = row.unwrap().payload;
     }
 
-    // ctx.set_contents(msg).unwrap();
+    let msg : String = "Hello, world!".to_string();
+
+    ctx.set_contents(msg).unwrap();
 }
 
 pub fn not_found() -> () {
