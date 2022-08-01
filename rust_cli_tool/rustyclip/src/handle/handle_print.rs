@@ -37,12 +37,18 @@ pub fn saved_print(paste : &String , unique_keys : Vec<String> , id : i64) -> ()
     )
 }
 
-//Panic prints 
+//Error messages
 
 pub fn save_panic() -> () {
     println!("\n{}\n{}\n{}",
     "You forgot to add a unique key to your paste!".bright_red().bold(), 
     "USAGE : rustyclip.exe save <unique key>".red(),
     "EXAMPLE: rustyclip.exe save jasons_email_address".red()
+    )
+}
+
+pub fn copy_error() -> () {
+    println!("\n{}",
+    "Sorry, this key doesn't exist".red().bold()
     )
 }

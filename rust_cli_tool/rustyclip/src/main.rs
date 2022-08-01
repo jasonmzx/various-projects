@@ -88,10 +88,5 @@ fn main() -> Result<()> {
         _=> handle::not_found(),
     }
 
-
-    //let msg : String = "Hello, world!".to_string();
-
-    // ctx.set_contents(msg).unwrap();
-
     Ok(())
 }

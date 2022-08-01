@@ -112,6 +112,13 @@ pub fn copy(conn: &Connection , key : String) -> () {
         })
     }).unwrap();
 
+
+    //Checking that the key exists:
+    if(&key_rows.count() == &0){
+        panic!("Can't find key...")
+    }
+
+
     //Putting in a default value since the compiler is worried.
     let mut reference_id : i32 = 0;
 
@@ -141,9 +148,9 @@ pub fn copy(conn: &Connection , key : String) -> () {
         copy_string = row.unwrap().payload;
     }
 
-    let msg : String = "Hello, world!".to_string();
+    ctx.set_contents(copy_string).unwrap();
+    ctx.get_contents();
 
-    ctx.set_contents(msg).unwrap();
 }
 
 pub fn not_found() -> () {
