@@ -67,24 +67,40 @@ fn main() -> Result<()> {
     //CLI Argument values:
     let action = matches.value_of("ACTION").unwrap(); //Unwrapping this since the Action flag is mandatory
     let payload = matches.value_of("PAYLOAD").ok_or(""); //This flag is option so I'm equally expecting an Error 
+    let extra = matches.value_of("EXTRA").ok_or("");
 
     //Assertions: 
 
     //Whilst preforming the `save` action, a user MUST include a unique indentifier for their paste.
-    if(action == "save" && payload == Err("")) {
-        print::save_panic();
-        panic!("{}", "USE A UNIQUE KEY");
+    if( (action == "save" || action == "copy")  && payload == Err("")) {
+        print::missing_key_panic();
+        return Ok(());
     }
 
-    //Unwrapping and casting the payload for easy usage
+    let extra_integer : i32 = 0;
+
+    //Whilst preforming the `copy` action, a user MUST include a unique indentifier for their paste.
+    if(action == "view" && payload == Err("") ) {
+
+        print::missing_key_panic();
+        return Ok(());
+    } else {
+
+        let extra_string : String = extra.unwrap().to_string(); //Change this to unwrap or
+
+        let inte : i32 = extra_string.parse().unwrap();
+    }
+
+    //Unwrapping and casting the Cli args for easy passing to the switch statement
     let payload_string : String = payload.unwrap().to_string();
 
-
+    
     // Switch statement for Action handling (Granted that the assertions handled any invalid input)
 
     match action {
           "save" => handle::save(&conn, payload_string),
           "copy" => handle::copy(&conn, payload_string),
+          "view" => handle::view(&conn, payload_string, extra_integer),
         _=> handle::not_found(),
     }
 

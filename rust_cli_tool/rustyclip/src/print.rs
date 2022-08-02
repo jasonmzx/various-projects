@@ -14,10 +14,10 @@ pub fn header_print(title : &str) -> () {
 
 //Panic prints 
 
-pub fn save_panic() -> () {
+pub fn missing_key_panic() -> () {
     println!("\n{}\n{}\n{}",
     "You forgot to add a unique key to your paste!".bright_red().bold(), 
-    "USAGE : rustyclip.exe save <unique key>".red(),
-    "EXAMPLE: rustyclip.exe save jasons_email_address".red()
+    "USAGE : rustyclip.exe <command> <unique key>".red(),
+    "EXAMPLE: rustyclip.exe <command> jasons_email_address".red()
     )
 }

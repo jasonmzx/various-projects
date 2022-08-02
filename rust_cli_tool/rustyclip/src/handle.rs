@@ -157,6 +157,10 @@ pub fn copy(conn: &Connection , key : String) -> () {
     return ();
 }
 
+pub fn view(conn: &Connection , key : String, page : i32) -> () {
+
+}
+
 pub fn not_found() -> () {
     println!("{}", "Not found")
 }
