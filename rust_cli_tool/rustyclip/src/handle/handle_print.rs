@@ -37,9 +37,24 @@ pub fn saved_print(paste : &String , unique_keys : Vec<String> , id : i64) -> ()
     )
 }
 
+pub fn copy_print(unique_key : &String) -> () {
+    let zero_string : String = "Copying `".to_owned()+unique_key.as_str()+"` to your clipboard ... ";
+
+    println!("\n{}",
+        zero_string.bright_green().bold()
+    )
+
+}
+
+pub fn copy_success() -> () {
+    println!("{}\n", 
+    "Successfully copied! Try to CTRL + V".green().bold()
+    )
+}
+
 //Error messages
 
-pub fn save_panic() -> () {
+pub fn save_error() -> () {
     println!("\n{}\n{}\n{}",
     "You forgot to add a unique key to your paste!".bright_red().bold(), 
     "USAGE : rustyclip.exe save <unique key>".red(),
@@ -48,7 +63,7 @@ pub fn save_panic() -> () {
 }
 
 pub fn copy_error() -> () {
-    println!("\n{}",
-    "Sorry, this key doesn't exist".red().bold()
+    println!("{}\n",
+    "FAILED ! This identifier doesn't exist !".red().bold()
     )
 }

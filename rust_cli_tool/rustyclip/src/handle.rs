@@ -98,6 +98,8 @@ pub fn save(conn: &Connection , key : String) -> () {
 
 pub fn copy(conn: &Connection , key : String) -> () {
 
+    handle_print::copy_print(&key);
+
     //Creation clipboard context
     let mut ctx = ClipboardContext::new().unwrap();
 
@@ -112,24 +114,23 @@ pub fn copy(conn: &Connection , key : String) -> () {
         })
     }).unwrap();
 
-
-    //Checking that the key exists:
-    if(&key_rows.count() == &0){
-        panic!("Can't find key...")
-    }
-
-
     //Putting in a default value since the compiler is worried.
-    let mut reference_id : i32 = 0;
+    let mut reference_id : i32 = -1;
 
     //For loop is nessessary since MappedRow type cannot be indexed regularly (weird)
     for row in key_rows {
 
         //SQLite library assumes integers as i32 so I convert it back into i64
         reference_id = row.unwrap().id;
-        println!("{:?}", reference_id.to_string());
+
     }
 
+    //ASSERT: Check if the key actually exists before trying section query
+    if(&reference_id == &-1 ){
+        handle_print::copy_error();
+        return ();
+    }
+    
     //Get paste via Id
 
     let mut paste_stmt = conn.prepare("SELECT id , paste FROM paste_table WHERE id = :key;").unwrap();
@@ -151,6 +152,9 @@ pub fn copy(conn: &Connection , key : String) -> () {
     ctx.set_contents(copy_string).unwrap();
     ctx.get_contents();
 
+    handle_print::copy_success();
+
+    return ();
 }
 
 pub fn not_found() -> () {
