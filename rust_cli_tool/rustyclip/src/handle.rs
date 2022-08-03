@@ -157,7 +157,11 @@ pub fn copy(conn: &Connection , key : String) -> () {
     return ();
 }
 
-pub fn view(conn: &Connection , key : String, page : i32) -> () {
+pub fn view(conn: &Connection , key : String) -> () {
+
+}
+
+pub fn list(conn: &Connection, page : i32) -> () {
 
 }
 

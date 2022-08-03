@@ -13,11 +13,6 @@ args:
         required: false
         index: 2
 
-    - EXTRA:
-        help: Extra Arg 2.
-        required: false
-        index: 3
-
 subcommands:
     - test:
         about: controls testing features
