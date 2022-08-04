@@ -127,7 +127,7 @@ pub fn copy(conn: &Connection , key : String) -> () {
 
     //ASSERT: Check if the key actually exists before trying section query
     if(&reference_id == &-1 ){
-        handle_print::copy_error();
+        handle_print::not_existent_key_error();
         return ();
     }
     
@@ -163,6 +163,56 @@ pub fn view(conn: &Connection , key : String) -> () {
 
 pub fn list(conn: &Connection, page : i32) -> () {
 
+}
+
+pub fn delete(conn: &Connection, key: String) -> () {
+    
+    handle_print::delete_print(&key);
+
+    let mut key_stmt = conn.prepare("SELECT id , key FROM key_table WHERE key = :key;").unwrap();
+    
+    let key_rows = key_stmt.query_map(&[(":key", key.as_str())], |row| {
+        Ok(Table {
+            id: row.get(0)?,
+            payload: row.get(1)?,
+        })
+    }).unwrap();
+
+    //Putting in a default value since the compiler is worried.
+    let mut reference_id : i32 = -1;
+
+    //For loop is nessessary since MappedRow type cannot be indexed regularly (weird)
+    for row in key_rows {
+
+        //SQLite library assumes integers as i32 so I convert it back into i64
+        reference_id = row.unwrap().id;
+
+    }
+
+    //ASSERT: Check if the key actually exists before trying section query
+    if(&reference_id == &-1 ){
+            handle_print::not_existent_key_error();
+            return ();
+    }
+
+
+    //TODO: Possibly turn this into a transaction instead of having 2 seperate executions via the rusqlite transaction method
+
+    //Delete all tied nicknames
+
+    let mut delete_keys_stmt = conn.prepare("DELETE FROM key_table WHERE id = ?1 ;").unwrap();
+
+    delete_keys_stmt.execute(params![&reference_id]);
+    
+
+    //Delete all tied pastes
+
+    let mut delete_paste_stmt = conn.prepare("DELETE FROM paste_table WHERE id = ?1 ;").unwrap();
+
+    delete_paste_stmt.execute(params![&reference_id]);
+
+    handle_print::delete_success();
+    
 }
 
 pub fn not_found() -> () {

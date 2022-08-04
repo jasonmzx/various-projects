@@ -46,10 +46,24 @@ pub fn copy_print(unique_key : &String) -> () {
 
 }
 
+pub fn delete_print(unique_key : &String) -> () {
+    let zero_string : String = "Deleting `".to_owned()+unique_key.as_str()+"` from your records ... ";   
+
+    println!("\n{}",
+    zero_string.bright_yellow().bold()
+    )
+}
+
 pub fn copy_success() -> () {
     println!("{}\n", 
     "Successfully copied! Try to CTRL + V".green().bold()
     )
+}
+
+pub fn delete_success() -> () {
+    println!("{}\n", 
+    "Successfully deleted this paste !".bright_red().bold()
+    )    
 }
 
 //Error messages
@@ -62,7 +76,7 @@ pub fn save_error() -> () {
     )
 }
 
-pub fn copy_error() -> () {
+pub fn not_existent_key_error() -> () {
     println!("{}\n",
     "FAILED ! This identifier doesn't exist !".red().bold()
     )

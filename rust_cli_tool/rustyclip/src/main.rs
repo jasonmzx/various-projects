@@ -47,8 +47,9 @@ fn main() -> Result<()> {
     //Creation of Tables: (Loop thru Vector & execute)
 
     for table in tables {
+
         match conn.execute( table , [] , ) // empty list of parameters.
-         {
+        {
             Ok(i) => {
                 let ok_string : String = "Initialized a new SQLite Table.".to_string();
                 println!("{}", ok_string.green().bold() )
@@ -88,12 +89,10 @@ fn main() -> Result<()> {
         return Ok(());
     } else {
 
-        //Parse the integer from a string, if NaN, set to 0
+        //Parse the integer from a string, if NaN, set to 0 
+
         page_integer = payload_string.parse().unwrap_or(0);
     }
-
-
-    println!("{:?}", page_integer.to_string());
 
     // Switch statement for Action handling (Granted that the assertions handled any invalid input)
 
@@ -101,6 +100,7 @@ fn main() -> Result<()> {
           "save" => handle::save(&conn, payload_string),
           "copy" => handle::copy(&conn, payload_string),
           "view" => handle::view(&conn, payload_string),
+          "delete" => handle::delete(&conn, payload_string),
           "list" => handle::list(&conn, page_integer),
         _=> handle::not_found(),
     }
