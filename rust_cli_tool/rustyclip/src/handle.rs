@@ -163,6 +163,18 @@ pub fn view(conn: &Connection , key : String) -> () {
 
 pub fn list(conn: &Connection, page : i32) -> () {
 
+    let mut all_paste_stmt = conn.prepare("SELECT * FROM paste_table;").unwrap();
+
+    //query
+
+    let all_paste_rows = all_paste_stmt.query_map([], |row| {
+        Ok(Table {
+            id: row.get(0)?,
+            payload: row.get(1)?,
+        })
+    }).unwrap();
+
+    println!("{:?}", all_paste_rows.count())
 }
 
 pub fn delete(conn: &Connection, key: String) -> () {

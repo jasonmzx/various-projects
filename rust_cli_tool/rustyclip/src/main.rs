@@ -79,8 +79,6 @@ fn main() -> Result<()> {
 
     let mut page_integer : i32 = 0;
 
-    //Unwrapping and casting the Cli args for easy passing to the switch statement
-    let payload_string : String = payload.unwrap().to_string();
 
     //Whilst preforming the `copy` action, a user MUST include a unique indentifier for their paste.
     if(action == "list" && payload == Err("") ) {
@@ -91,8 +89,13 @@ fn main() -> Result<()> {
 
         //Parse the integer from a string, if NaN, set to 0 
 
+
+        //TODO :: Fix this since payload_string now definied under
         page_integer = payload_string.parse().unwrap_or(0);
     }
+
+    //Unwrapping and casting the Cli args for easy passing to the switch statement
+    let payload_string : String = payload.unwrap().to_string();
 
     // Switch statement for Action handling (Granted that the assertions handled any invalid input)
 
