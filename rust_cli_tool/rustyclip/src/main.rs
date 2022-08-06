@@ -70,41 +70,49 @@ fn main() -> Result<()> {
     let payload = matches.value_of("PAYLOAD").ok_or(""); //This flag is option so I'm equally expecting an Error 
 
     //Assertions: 
+    let mut payload_string : String = "".to_string();
+
 
     //Whilst preforming the `save` action, a user MUST include a unique indentifier for their paste.
     if( (action == "save" || action == "copy" || action == "view")  && payload == Err("")) {
         print::missing_key_panic();
         return Ok(());
+    } else if ( payload != Err("") ) {
+        payload_string = payload.unwrap().to_string();
     }
 
-    let mut page_integer : i32 = 0;
+    let mut page_integer : i32 = -1;
 
 
     //Whilst preforming the `copy` action, a user MUST include a unique indentifier for their paste.
     if(action == "list" && payload == Err("") ) {
 
-        print::missing_key_panic();
-        return Ok(());
+        page_integer = 0;
+
     } else {
 
         //Parse the integer from a string, if NaN, set to 0 
 
-
-        //TODO :: Fix this since payload_string now definied under
-        page_integer = payload_string.parse().unwrap_or(0);
+        page_integer = payload.unwrap().to_string().parse().unwrap_or(-1);
     }
-
-    //Unwrapping and casting the Cli args for easy passing to the switch statement
-    let payload_string : String = payload.unwrap().to_string();
 
     // Switch statement for Action handling (Granted that the assertions handled any invalid input)
 
     match action {
-          "save" => handle::save(&conn, payload_string),
-          "copy" => handle::copy(&conn, payload_string),
-          "view" => handle::view(&conn, payload_string),
+          "save" =>   handle::save(&conn, payload_string),
+          "s" =>      handle::save(&conn, payload_string),
+
+          "copy" =>   handle::copy(&conn, payload_string),
+          "c" =>      handle::copy(&conn, payload_string),
+
+          "view" =>   handle::view(&conn, payload_string),
+          "v" =>      handle::view(&conn, payload_string),
+
           "delete" => handle::delete(&conn, payload_string),
-          "list" => handle::list(&conn, page_integer),
+          "del"    => handle::delete(&conn, payload_string),
+
+          "list" =>   handle::list(&conn, page_integer),
+          "l"    =>   handle::list(&conn, page_integer),
         _=> handle::not_found(),
     }
 
