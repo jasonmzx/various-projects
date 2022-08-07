@@ -174,7 +174,42 @@ pub fn list(conn: &Connection, page : i32) -> () {
         })
     }).unwrap();
 
-    println!("{:?}", all_paste_rows.count())
+
+    for paste_row in all_paste_rows {
+
+        //Unwrap and move the paste_row's contents to a variable 
+        let uw_paste_row = paste_row.unwrap();
+
+        //Set variables to pointers of various struct elements for easy calling below
+        let reference_id : &i32 = &uw_paste_row.id;
+        let paste : &String = &uw_paste_row.payload;
+
+        let mut cor_stmt = conn.prepare("SELECT id,key FROM key_table WHERE id = :id;").unwrap();
+
+        let corrolated_rows = cor_stmt.query_map(&[(":id", reference_id.to_string().as_str())], |row| {
+            Ok(Table {
+                id: row.get(0)?,
+                payload: row.get(1)?,
+            })
+        }).unwrap();
+
+        let mut keys : Vec<String> = Vec::new();
+
+        //Double nest for to get all associated nicknames from a reference id:
+        for cor_row in corrolated_rows {
+            
+            //Key string
+            let nickname = cor_row.unwrap().payload;
+
+            keys.push(nickname);
+
+        }
+
+        let joined_keys = keys.join(" , ");
+
+        handle_print::view_print(&reference_id, &paste , &joined_keys);
+
+    }
 }
 
 pub fn delete(conn: &Connection, key: String) -> () {

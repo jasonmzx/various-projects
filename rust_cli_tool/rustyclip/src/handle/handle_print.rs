@@ -54,6 +54,21 @@ pub fn delete_print(unique_key : &String) -> () {
     )
 }
 
+pub fn view_print(id : &i32 , paste : &str, keys : &str) -> () {
+    let zero_string : String = "Paste #".to_owned()+id.to_string().as_str()+" ...";
+
+    let one_string : String = "Unique Identifiers : ".to_owned()+keys;
+
+    let two_string : String = "Paste: \n ".to_owned()+paste;
+
+    println!("\n{}\n{}\n{}\n{}",
+    zero_string.bright_green().bold(),
+    one_string.bright_green(),
+    "Paste: ".bright_yellow().bold(),
+    paste.bright_yellow(),
+    )
+}
+
 pub fn copy_success() -> () {
     println!("{}\n", 
     "Successfully copied! Try to CTRL + V".green().bold()
@@ -65,6 +80,7 @@ pub fn delete_success() -> () {
     "Successfully deleted this paste !".bright_red().bold()
     )    
 }
+
 
 //Error messages
 

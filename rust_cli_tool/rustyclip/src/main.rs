@@ -113,6 +113,7 @@ fn main() -> Result<()> {
 
           "list" =>   handle::list(&conn, page_integer),
           "l"    =>   handle::list(&conn, page_integer),
+          
         _=> handle::not_found(),
     }
 
