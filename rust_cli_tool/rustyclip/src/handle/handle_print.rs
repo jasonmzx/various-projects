@@ -19,6 +19,7 @@ pub fn override_print() -> () {
     )
 }
 
+//TODO: Change the input param to &str , Vec(&str) , and &i64
 pub fn saved_print(paste : &String , unique_keys : Vec<String> , id : i64) -> () {
 
     let zero_string : String = "Successfully saved paste # ".to_owned()+&id.to_string();
@@ -37,6 +38,7 @@ pub fn saved_print(paste : &String , unique_keys : Vec<String> , id : i64) -> ()
     )
 }
 
+//TODO: Change the input param to &str
 pub fn copy_print(unique_key : &String) -> () {
     let zero_string : String = "Copying `".to_owned()+unique_key.as_str()+"` to your clipboard ... ";
 
@@ -46,6 +48,7 @@ pub fn copy_print(unique_key : &String) -> () {
 
 }
 
+//TODO: Change the input param to &str
 pub fn delete_print(unique_key : &String) -> () {
     let zero_string : String = "Deleting `".to_owned()+unique_key.as_str()+"` from your records ... ";   
 

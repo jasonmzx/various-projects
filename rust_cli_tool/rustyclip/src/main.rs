@@ -69,6 +69,11 @@ fn main() -> Result<()> {
     let action = matches.value_of("ACTION").unwrap(); //Unwrapping this since the Action flag is mandatory
     let payload = matches.value_of("PAYLOAD").ok_or(""); //This flag is option so I'm equally expecting an Error 
 
+    //Constants:
+        //amount of pastes to be displayed per page:
+    const ITEMS_PER_PAGE : i32 = 5 ;
+
+
     //Assertions: 
     let mut payload_string : String = "".to_string();
 
@@ -111,8 +116,8 @@ fn main() -> Result<()> {
           "delete" => handle::delete(&conn, payload_string),
           "del"    => handle::delete(&conn, payload_string),
 
-          "list" =>   handle::list(&conn, page_integer),
-          "l"    =>   handle::list(&conn, page_integer),
+          "list" =>   handle::list(&conn, &ITEMS_PER_PAGE, &page_integer),
+          "l"    =>   handle::list(&conn, &ITEMS_PER_PAGE, &page_integer),
           
         _=> handle::not_found(),
     }

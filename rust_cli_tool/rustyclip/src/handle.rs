@@ -161,10 +161,18 @@ pub fn view(conn: &Connection , key : String) -> () {
 
 }
 
-pub fn list(conn: &Connection, page : i32) -> () {
+
+//TODO Make use of page integer being passed in, (including the default value)
+pub fn list(conn: &Connection, items_per_page : &i32, page : &i32) -> () {
 
     let mut all_paste_stmt = conn.prepare("SELECT * FROM paste_table;").unwrap();
 
+    //Page bounds:
+    let lower_bound : i32 = items_per_page * page;
+    let upper_bound : i32 = items_per_page * ( page + 1 );
+
+
+    println!("LB : {} UB : {}", lower_bound.to_string(), upper_bound.to_string());
     //query
 
     let all_paste_rows = all_paste_stmt.query_map([], |row| {
@@ -174,41 +182,48 @@ pub fn list(conn: &Connection, page : i32) -> () {
         })
     }).unwrap();
 
+    let mut item_counter : i32 = 0 ;
 
     for paste_row in all_paste_rows {
 
-        //Unwrap and move the paste_row's contents to a variable 
-        let uw_paste_row = paste_row.unwrap();
 
-        //Set variables to pointers of various struct elements for easy calling below
-        let reference_id : &i32 = &uw_paste_row.id;
-        let paste : &String = &uw_paste_row.payload;
+        if(item_counter >= lower_bound && item_counter <= upper_bound) {
 
-        let mut cor_stmt = conn.prepare("SELECT id,key FROM key_table WHERE id = :id;").unwrap();
+            //Unwrap and move the paste_row's contents to a variable 
+            let uw_paste_row = paste_row.unwrap();
 
-        let corrolated_rows = cor_stmt.query_map(&[(":id", reference_id.to_string().as_str())], |row| {
-            Ok(Table {
-                id: row.get(0)?,
-                payload: row.get(1)?,
-            })
-        }).unwrap();
+            //Set variables to pointers of various struct elements for easy calling below
+            let reference_id : &i32 = &uw_paste_row.id;
+            let paste : &String = &uw_paste_row.payload;
 
-        let mut keys : Vec<String> = Vec::new();
+            let mut cor_stmt = conn.prepare("SELECT id,key FROM key_table WHERE id = :id;").unwrap();
 
-        //Double nest for to get all associated nicknames from a reference id:
-        for cor_row in corrolated_rows {
-            
-            //Key string
-            let nickname = cor_row.unwrap().payload;
+            let corrolated_rows = cor_stmt.query_map(&[(":id", reference_id.to_string().as_str())], |row| {
+                Ok(Table {
+                    id: row.get(0)?,
+                    payload: row.get(1)?,
+                })
+            }).unwrap();
 
-            keys.push(nickname);
+            let mut keys : Vec<String> = Vec::new();
+
+            //Double nest for to get all associated nicknames from a reference id:
+            for cor_row in corrolated_rows {
+                
+                //Key string
+                let nickname = cor_row.unwrap().payload;
+
+                keys.push(nickname);
+
+            }
+
+            let joined_keys = keys.join(" , ");
+
+            handle_print::view_print(&reference_id, &paste , &joined_keys);
 
         }
 
-        let joined_keys = keys.join(" , ");
-
-        handle_print::view_print(&reference_id, &paste , &joined_keys);
-
+        item_counter += 1;
     }
 }
 
