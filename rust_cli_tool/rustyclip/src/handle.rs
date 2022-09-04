@@ -1,5 +1,7 @@
 use rusqlite::{params, Connection, Result};
 use copypasta::{ClipboardContext, ClipboardProvider};
+use std::io;
+use std::io::{Error, ErrorKind};
 
 //Module imports
 mod handle_print;
@@ -12,6 +14,27 @@ struct Table {
     payload : String
 }
 
+//TODO: Make a copy function that executes the copy, and voids if it passes but raises an error if fail
+fn execute_io_copy(string : String) -> Result<() , Error> {
+
+    //Creation clipboard context
+    let mut ctx = ClipboardContext::new().unwrap();
+
+    //Before transferring ownership of string, I'm cloning it to check it later
+    let string_clone = string.clone();
+
+    ctx.set_contents(string).unwrap();
+
+    let check = ctx.get_contents();
+    
+    if(check.unwrap() != string_clone) {
+        let msg = format!("Invalid array size!");
+        return Err(Error::new(ErrorKind::InvalidData, msg));
+    }
+
+    Ok(())
+
+}
 
 fn execute_paste(conn : &Connection, paste_string : &String) -> (i64) {
 
@@ -149,10 +172,18 @@ pub fn copy(conn: &Connection , key : String) -> () {
         copy_string = row.unwrap().payload;
     }
 
-    ctx.set_contents(copy_string).unwrap();
-    ctx.get_contents();
 
-    handle_print::copy_success();
+    //Execution of the Copy into your Clipboard: 
+
+    match execute_io_copy(copy_string) 
+    {
+        Ok(i) => {
+            handle_print::copy_success(); //If the copy returns Ok, print the success statement
+        },
+
+        Err(e) => {println!("I'm not ok...")}, //If it returns an error, let the user know this function failed
+    };
+
 
     return ();
 }
